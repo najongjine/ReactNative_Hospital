@@ -9,8 +9,6 @@ type KakaoMapProps = {
 
 export default function KakaoMap({ latitude, longitude }: KakaoMapProps) {
   let KAKAO_MAP_JS_KEY = `150e98e3bd883753e02d811c6dfa864c`;
-  longitude = 126.78269531238217;
-  latitude = 35.15038945063345;
   const htmlContent = `
     <!DOCTYPE html>
     <html>

@@ -3,7 +3,8 @@ import KakaoMap from "@/components/KakaoMap";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function KakaoMapScreen() {
   // 📌 현재 위치의 경도(longitude)를 저장할 상태 변수입니다.
@@ -31,10 +32,10 @@ export default function KakaoMapScreen() {
 
   // 📱 화면에 실제로 보여줄 UI를 정의합니다.
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.text}>카카오맵 웹뷰로 띄우기</Text>
       {longitude ? <KakaoMap latitude={latitude} longitude={longitude} /> : <Text>위치를 가져오는 중입니다...</Text>}
-    </View>
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({

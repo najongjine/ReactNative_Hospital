@@ -32,7 +32,7 @@ export default function KakaoMapScreen() {
 
   // 📱 화면에 실제로 보여줄 UI를 정의합니다.
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.text}>카카오맵 웹뷰로 띄우기</Text>
       {longitude ? <KakaoMap latitude={latitude} longitude={longitude} /> : <Text>위치를 가져오는 중입니다...</Text>}
     </ScrollView>
@@ -40,7 +40,7 @@ export default function KakaoMapScreen() {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f8f9fd",

@@ -48,6 +48,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="screens/search_results_screen"
+        options={{
+          href: null, // 탭바에 표시되지 않게 함
+        }}
+      />
     </Tabs>
   );
 }

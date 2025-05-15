@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Dimensions, FlatList, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import CustomModal from "../../../components/CustomModal";
+import HospitalDetail from "../../../components/HospitalDetail";
 
 type Hospital = {
   name: string;
@@ -56,26 +58,16 @@ export default function SearchResultsScreen() {
         )}
       />{" "}
       {/* 모달창 */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <ScrollView contentContainerStyle={styles.modalScrollContent} showsVerticalScrollIndicator={true}>
-              {selectedHospital && (
-                <>
-                  <Text style={styles.modalTitle}>{selectedHospital.name}</Text>
-                  <Text>{selectedHospital.department}</Text>
-                  <Text>{selectedHospital.address}</Text>
-                  <Text>{selectedHospital.phone}</Text>
-                </>
-              )}
-
-              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={{ color: "white", textAlign: "center" }}>Close</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)}>
+        {/* 만약 selectedHospital(선택된 병원)이 있다면, <HospitalDetail />(병원 정보창)을 모달 안에 보여줘!
+        | selectedHospital 값    | 결과                         |
+        | --------------------- | -------------------------- |
+        | `null` 또는 `undefined` | 아무것도 렌더링 안됨 (모달 안이 비어 있음)  |
+        | 병원 객체 있음              | `<HospitalDetail />`가 렌더링됨 |
+         */}
+        {selectedHospital && <HospitalDetail hospital={selectedHospital} />}
+      </CustomModal>
+      {/* 모달창 END */}
     </SafeAreaView>
   );
 }

@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { Link } from "expo-router";
-import { Platform, StyleSheet } from "react-native";
+import { Platform, StyleSheet, Text } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -51,7 +51,7 @@ export default function HomeScreen() {
       {/* 이 버튼을 누르면 testpage1으로 이동 */}
       <View>
         <Link href="/screens/testpage1" style={styles.link}>
-          TestPage1로 이동
+          <Text>TestPage1로 이동</Text>
         </Link>
       </View>
     </ParallaxScrollView>

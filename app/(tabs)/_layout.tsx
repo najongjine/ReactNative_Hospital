@@ -42,6 +42,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="my_fav_list"
+        options={{
+          title: "즐겨찾기",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="KakaoMapScreen"
         options={{
           title: "카카오맵",

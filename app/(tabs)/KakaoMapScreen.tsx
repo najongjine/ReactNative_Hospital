@@ -6,11 +6,15 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-export default function KakaoMapScreen() {
+interface KakaoMapProps {
+  _latitude: number;
+  _longitude: number;
+}
+export default function KakaoMapScreen({ _latitude, _longitude }: KakaoMapProps) {
   // 📌 현재 위치의 경도(longitude)를 저장할 상태 변수입니다.
-  const [longitude, setLongitude] = useState<number>();
+  const [longitude, setLongitude] = useState<number>(_longitude);
   // 📌 현재 위치의 위도(latitude)를 저장할 상태 변수입니다.
-  const [latitude, setLatitude] = useState<number>();
+  const [latitude, setLatitude] = useState<number>(_latitude);
 
   // ⚙️ 컴포넌트가 처음 렌더링될 때 한 번 실행되는 코드입니다.
   useEffect(() => {

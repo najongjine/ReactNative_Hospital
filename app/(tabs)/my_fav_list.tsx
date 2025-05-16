@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Dimensions, SafeAreaView, StyleSheet, Text } from "react-native";
-import CustomModal from "../../../components/CustomModal";
-import HospitalDetail from "../../../components/HospitalDetail";
-import HospitalList from "../../../components/HospitalList";
-import Button1 from "../../../components/buttons/button1";
-import KakaoMapScreen from "../KakaoMapScreen";
+import CustomModal from "../../components/CustomModal";
+import HospitalDetail from "../../components/HospitalDetail";
+import HospitalList from "../../components/HospitalList";
 
 type Hospital = {
   name: string;
@@ -74,44 +72,30 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 
    */
 
-export default function SearchResultsScreen() {
+export default function MyFavList() {
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
-  const [hospitalModalVisible, setHospitalModalVisible] = useState(false); // 병원 상세보기 모달
-  const [mapModalVisible, setMapModalVisible] = useState(false); // 지도 보기 모달
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Search Results</Text>
+      <Text style={styles.header}>즐겨찾기 리스트</Text>
       <HospitalList
         data={hospitalData}
+        // 함수를 바로 선언함과 동시에 자식한테 쓰라고 넘겨주기
         onPress={(hospital) => {
           setSelectedHospital(hospital);
-          setHospitalModalVisible(true);
+          setModalVisible(true);
         }}
       />{" "}
       {/* 모달창 */}
-      <CustomModal visible={hospitalModalVisible} onClose={() => setHospitalModalVisible(false)}>
+      <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)}>
         {/* 만약 selectedHospital(선택된 병원)이 있다면, <HospitalDetail />(병원 정보창)을 모달 안에 보여줘!
         | selectedHospital 값    | 결과                         |
         | --------------------- | -------------------------- |
         | `null` 또는 `undefined` | 아무것도 렌더링 안됨 (모달 안이 비어 있음)  |
         | 병원 객체 있음              | `<HospitalDetail />`가 렌더링됨 |
          */}
-        {selectedHospital && (
-          <>
-            {" "}
-            <Button1
-              buttonText={"지도보기"}
-              onPress={() => {
-                setMapModalVisible(true); // 지도 모달 열기
-              }}
-            />
-            <HospitalDetail hospital={selectedHospital} />
-          </>
-        )}
-      </CustomModal>
-      <CustomModal visible={mapModalVisible} onClose={() => setMapModalVisible(false)}>
-        {selectedHospital && <KakaoMapScreen _latitude={0} _longitude={0} />}
+        {selectedHospital && <HospitalDetail hospital={selectedHospital} />}
       </CustomModal>
       {/* 모달창 END */}
     </SafeAreaView>

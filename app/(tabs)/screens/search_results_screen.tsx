@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Dimensions, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Dimensions, SafeAreaView, StyleSheet, Text } from "react-native";
 import CustomModal from "../../../components/CustomModal";
 import HospitalDetail from "../../../components/HospitalDetail";
+import HospitalList from "../../../components/HospitalList";
 
 type Hospital = {
   name: string;
@@ -33,29 +34,58 @@ const hospitalData = [
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
+
+  /**
+[ SearchResultsScreen ]
+    ├── HospitalList (목록만 보여줌)
+    ├── CustomModal (모달은 여기 있음)
+    └── onPress: 병원 클릭하면 모달 열기
+
+| 컴포넌트                    | 역할 설명                                   |
+| ----------------------- | --------------------------------------- |
+| **HospitalList**        | 병원들 리스트만 화면에 그려줌                        |
+| **SearchResultsScreen** | 모달을 띄울지 말지 결정함<br>어떤 병원이 선택됐는지도 여기서 관리함 |
+
+  onPress={(hospital) => {
+    setSelectedHospital(hospital);
+    setModalVisible(true);
+  }}
+컴포넌트 HospitalList에 props로 전달되고 있어요:
+<HospitalList data={병원목록} onPress={뭔가실행할함수} />
+
+[HospitalList 컴포넌트]
+ ↓ 병원 하나 클릭
+ ↓ onPress(item) 실행
+ ↓ item은 병원 하나의 객체
+
+[SearchResultsScreen 컴포넌트]
+ ↑ (hospital) => { ... } 로 받음
+ ↑ setSelectedHospital(hospital)
+ ↑ setModalVisible(true)
+
+그래서 search_results_screen.tsx 안에서 직접 hospital이라는 변수를 선언하지 않아도 됩니다.
+그건 부모 컴포넌트가 콜백 함수에서 받는 "입력값"일 뿐이에요.
+
+ 여기서 (hospital) => { ... }
+➡ 이건 **"즉석에서 만든 함수"**이고,
+➡ 자식인 HospitalList한테 props로 넘겨주는 콜백 함수입니다.
+콜백 = 함수	어떤 일이 일어났을 때 실행하라고 넘겨주는 "대기 중인 함수"
+
+   */
+
 export default function SearchResultsScreen() {
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handlePress = (hospital: any) => {
-    setSelectedHospital(hospital);
-    setModalVisible(true);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Search Results</Text>
-      <FlatList
-        data={hospitalData}
-        keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.department}>{item.department}</Text>
-            <Text style={styles.info}>{item.address}</Text>
-            <Text style={styles.info}>{item.phone}</Text>
-          </TouchableOpacity>
-        )}
+      <HospitalList 
+        data={hospitalData} 
+        onPress={(hospital) => {
+          setSelectedHospital(hospital);
+          setModalVisible(true);
+        }} 
       />{" "}
       {/* 모달창 */}
       <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)}>

@@ -17,6 +17,9 @@ export default function CustomModal({ visible, onClose, children }: CustomModalP
         <View style={styles.modalContent}>
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
             {children}
+            {/* onClose는 이미 만들어진 함수예요. 예: const onClose = () => { ... }
+                버튼을 누르면 그 함수가 호출됨
+                매개변수가 필요 없는 상황에서 가장 간단한 코드*/}
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={{ color: "white", textAlign: "center" }}>Close</Text>
             </TouchableOpacity>

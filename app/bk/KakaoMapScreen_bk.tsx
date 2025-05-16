@@ -23,10 +23,8 @@ export default function KakaoMapScreen({ _latitude, _longitude }: KakaoMapProps)
       // 현재 위치 가져오기
       try {
         const { coords } = await Location.getCurrentPositionAsync({});
-        //setLongitude(coords?.longitude ?? 0);
-        //setLatitude(coords?.latitude ?? 0);
-        setLongitude(126.78269531238217);
-        setLatitude(35.15038945063345);
+        setLongitude(coords?.longitude ?? 0);
+        setLatitude(coords?.latitude ?? 0);
       } catch (error) {
         console.error("위치 정보를 가져오는 데 실패했습니다:", error);
         setLongitude(126.78269531238217);

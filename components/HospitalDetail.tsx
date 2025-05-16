@@ -14,10 +14,10 @@ export default function HospitalDetail({ hospital }: { hospital: Hospital }) {
 
   return (
     <>
-      <Text style={styles.title}>{hospital.name}</Text>
-      <Text>{hospital.department}</Text>
-      <Text>{hospital.address}</Text>
-      <Text>{hospital.phone}</Text>
+      <Text style={styles.title}>{hospital?.name ?? ""}</Text>
+      <Text>{hospital?.department ?? ""}</Text>
+      <Text>{hospital?.address ?? ""}</Text>
+      <Text>{hospital?.phone ?? ""}</Text>
     </>
   );
 }

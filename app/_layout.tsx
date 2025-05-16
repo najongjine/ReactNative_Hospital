@@ -5,8 +5,12 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { LogBox } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+LogBox.ignoreLogs(["Text strings must be rendered within a <Text> component"]);
+
+/* GestureHandlerRootView: React Native WebView 혹은 react-native-gesture-handler를 사용하는 컴포넌트 (WebView, ScrollView, Button, Modal 등 포함)가 GestureHandlerRootView로 감싸야함  */
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({ SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf") });
@@ -17,7 +21,6 @@ export default function RootLayout() {
   }
 
   return (
-    /* React Native WebView 혹은 react-native-gesture-handler를 사용하는 컴포넌트 (WebView, ScrollView, Button, Modal 등 포함)가 GestureHandlerRootView로 감싸야함  */
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>

@@ -1,38 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dimensions, SafeAreaView, StyleSheet, Text } from "react-native";
+// 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
+import * as Location from "expo-location";
 import CustomModal from "../../../components/CustomModal";
 import HospitalDetail from "../../../components/HospitalDetail";
 import HospitalList from "../../../components/HospitalList";
 import Button1 from "../../../components/buttons/button1";
+import * as kakao_api from "../../hooks/kakaomap_api";
+import * as kakao_api_type from "../../hooks/kakaomap_api_type";
 import KakaoMapScreen from "../KakaoMapScreen";
-
-type Hospital = {
-  name: string;
-  department: string;
-  address: string;
-  phone: string;
-};
-
-const hospitalData = [
-  {
-    name: "Sunnyvale Hospital",
-    department: "Pediatrics",
-    address: "123 Elm St, Springfield, IL",
-    phone: "(217) 555-0123",
-  },
-  {
-    name: "Greenwood Medical Center",
-    department: "Cardiology",
-    address: "456 Oak St, Lincoln, NE",
-    phone: "(402) 555-0147",
-  },
-  {
-    name: "Riverside Hospital",
-    department: "Orthopedics",
-    address: "789 Pine St, Columbus, OH",
-    phone: "(614) 555-0198",
-  },
-];
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
@@ -74,16 +50,45 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 
    */
 
-export default function SearchResultsScreen() {
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+export default async function SearchResultsScreen(search_keyword: string) {
+  const [hospitalData, setHospitalData] = useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
+  const [locationErrorMsg, setLocationErrorMsg] = useState<string>("");
+  const [selectedHospital, setSelectedHospital] = useState<kakao_api_type.KakaoPlace | null>(null);
   const [hospitalModalVisible, setHospitalModalVisible] = useState(false); // 병원 상세보기 모달
   const [mapModalVisible, setMapModalVisible] = useState(false); // 지도 보기 모달
+
+  useEffect(() => {
+    const fetchLocationAndData = async () => {
+      try {
+        // 위치 권한 요청
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setLocationErrorMsg("위치 권한이 거부되었습니다.");
+          return;
+        }
+
+        // 현재 위치 가져오기
+        const location = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = location.coords;
+
+        // Kakao API 호출
+        const kakao_api_result = await kakao_api.searchPlacesByKeyword("피부과", longitude.toString(), latitude.toString());
+
+        setHospitalData(kakao_api_result?.data);
+      } catch (error) {
+        console.error("위치 정보 가져오기 실패:", error);
+        setLocationErrorMsg("위치 정보를 가져오는 데 실패했습니다.");
+      }
+    };
+
+    fetchLocationAndData();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Search Results</Text>
       <HospitalList
-        data={hospitalData}
+        data={hospitalData?.documents as kakao_api_type.KakaoPlace[]}
         onPress={(hospital) => {
           setSelectedHospital(hospital);
           setHospitalModalVisible(true);

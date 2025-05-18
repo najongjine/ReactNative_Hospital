@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Button, StyleSheet, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 // 📦 WebView는 HTML 기반 지도를 앱 화면에 띄워주는 도구입니다.
 import * as Location from "expo-location";
 import { WebView } from "react-native-webview";
@@ -12,8 +12,8 @@ type KakaoMapProps = {
 
 export default function KakaoMap({ latitude, longitude }: KakaoMapProps) {
   // 🔑 카카오 지도 API를 사용하려면 필요한 키입니다 (보안상 실제 앱에선 .env 파일로 관리해야 안전합니다)
-  let KAKAO_MAP_JS_KEY = `150e98e3bd883753e02d811c6dfa864c`;
-  const REST_API_KEY = `59498ffaa12716e02333174a9e4bac54`;
+  const KAKAO_MAP_JS_KEY = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
+  const REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY;
   const webViewRef = useRef<WebView>(null);
 
   // 📌 현재 위치의 경도(longitude)를 저장할 상태 변수입니다.
@@ -179,6 +179,7 @@ const marker = new kakao.maps.Marker({
   // 📱 이 함수형 컴포넌트는 View 안에 WebView를 렌더링합니다.
   return (
     <View style={styles.container}>
+      <Text>KAKAO_MAP_JS_KEY : {KAKAO_MAP_JS_KEY}</Text>
       <WebView
         ref={webViewRef}
         originWhitelist={["*"]}

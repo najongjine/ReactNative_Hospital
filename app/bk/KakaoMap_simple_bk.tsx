@@ -11,8 +11,8 @@ type KakaoMapProps = {
 
 export default function KakaoMap({ latitude, longitude }: KakaoMapProps) {
   // 🔑 카카오 지도 API를 사용하려면 필요한 키입니다 (보안상 실제 앱에선 .env 파일로 관리해야 안전합니다)
-  let KAKAO_MAP_JS_KEY = `150e98e3bd883753e02d811c6dfa864c`;
-  const REST_API_KEY = `59498ffaa12716e02333174a9e4bac54`;
+  const KAKAO_MAP_JS_KEY = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
+  const REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY;
   // 🌐 WebView로 띄울 HTML 코드입니다. 안에 카카오 지도 JavaScript API를 넣었습니다.
   const htmlContent = `
     <!DOCTYPE html>

@@ -47,7 +47,7 @@ export default function HospitalList({ data, onPress }: HospitalListProps) {
          */
         <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
           <Text style={styles.name}>{item?.place_name ?? ""}</Text>
-          <Text style={styles.department}>{item?.category_group_name ?? ""}</Text>
+          <Text style={styles.department}>{item?.category_name ?? ""}</Text>
           <Text style={styles.info}>{item?.address_name ?? ""}</Text>
           <Text style={styles.info}>{item?.phone ?? ""}</Text>
         </TouchableOpacity>

@@ -41,13 +41,15 @@ export const searchPlacesByKeyword = async (
         sort,
       },
     });
+    
     const places: kakao_api_types.KakaoKeywordSearchResponse = response?.data;
     result.data = places;
+    return result;
   } catch (error: any) {
     result.success = false;
     result.data = null;
     result.code = `kakaomap_api_error`;
-    console.error("!!! kakaomap api error:", error?.message ?? "");
-    throw error;
+    result.message=`!!! kakaomap api error:" ${error?.message ?? ""}`;
+    return result;
   }
 };

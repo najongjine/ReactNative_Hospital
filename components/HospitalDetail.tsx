@@ -1,22 +1,18 @@
 // components/HospitalDetail.tsx
 import React from "react";
 import { StyleSheet, Text } from "react-native";
+import * as kakao_api_type from "../app/hooks/kakaomap_api_type";
 
-type Hospital = {
-  name: string;
-  department: string;
-  address: string;
-  phone: string;
-};
 
-export default function HospitalDetail({ hospital }: { hospital: Hospital }) {
+
+export default function HospitalDetail({ hospital }: { hospital: kakao_api_type.KakaoPlace }) {
   if (!hospital) return null;
 
   return (
     <>
-      <Text style={styles.title}>{hospital?.name ?? ""}</Text>
-      <Text>{hospital?.department ?? ""}</Text>
-      <Text>{hospital?.address ?? ""}</Text>
+      <Text style={styles.title}>{hospital?.place_name ?? ""}</Text>
+      <Text>{hospital?.category_name ?? ""}</Text>
+      <Text>{hospital?.address_name ?? ""}</Text>
       <Text>{hospital?.phone ?? ""}</Text>
     </>
   );

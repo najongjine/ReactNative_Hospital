@@ -50,7 +50,7 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 
    */
 
-export default async function SearchResultsScreen(search_keyword: string) {
+export default function SearchResultsScreen(search_keyword: string) {
   const [hospitalData, setHospitalData] = useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string>("");
   const [selectedHospital, setSelectedHospital] = useState<kakao_api_type.KakaoPlace | null>(null);
@@ -73,6 +73,7 @@ export default async function SearchResultsScreen(search_keyword: string) {
 
         // Kakao API 호출
         const kakao_api_result = await kakao_api.searchPlacesByKeyword("피부과", longitude.toString(), latitude.toString());
+        console.log("kakao_api_result:",kakao_api_result)
 
         setHospitalData(kakao_api_result?.data);
       } catch (error) {

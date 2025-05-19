@@ -72,8 +72,18 @@ export default function SearchResultsScreen() {
         return;
       }
 
-      // 현재 위치 가져오기
-      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      // 5분 이내의 마지막 위치 정보 시도
+      const lastLocation = await Location.getLastKnownPositionAsync({
+        maxAge: 300000, // 5분 = 300,000밀리초
+        //requiredAccuracy: 100, // 필요 시 조정 가능
+      });
+
+      let location = lastLocation;
+      if (!location) {
+        // 현재 위치 가져오기
+        location = await Location.getCurrentPositionAsync({});
+      }
+
       const { latitude, longitude } = location.coords;
       console.log("longitude: ", longitude);
 
@@ -89,6 +99,10 @@ export default function SearchResultsScreen() {
       console.log("kakao_api_result:", kakao_api_result);
 
       setHospitalData(kakao_api_result?.data ?? null);
+      if (!kakao_api_result.success) {
+        setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${kakao_api_result?.message ?? ""}`);
+        return;
+      }
     } catch (error: any) {
       console.error("위치 정보 가져오기 실패:", error);
       setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${error?.message ?? ""}`);

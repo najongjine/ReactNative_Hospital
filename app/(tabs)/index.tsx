@@ -1,5 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import React, { useState } from "react";
+import {
+  Button,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -7,7 +19,17 @@ const medicalSubjects = ["치과", "내과", "외과", "소아과", "정형외�
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [searchKeyword, setSearchKeyword] = useState("");
   const { width } = useWindowDimensions(); // 화면 너비 감지
+
+  const handleSearch = () => {
+    if (!searchKeyword?.trim()) return;
+    router.push({
+      pathname: "/(tabs)/screens/search_results_screen",
+      params: { keyword: searchKeyword?.trim() ?? "" },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -16,7 +38,8 @@ export default function HomeScreen() {
         {/* 검색창 */}
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color="gray" />
-          <TextInput style={styles.searchInput} placeholder="자유검색" />
+          <TextInput style={styles.searchInput} placeholder="자유검색" onChangeText={setSearchKeyword} />
+          <Button title="검색" onPress={handleSearch} />
         </View>
         {/* 이미지 - 반응형 */}
         <Image
@@ -32,7 +55,16 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>진료과목</Text>
         {/* 진료과목 리스트 */}
         {medicalSubjects.map((item) => (
-          <TouchableOpacity key={item} style={styles.subjectItem}>
+          <TouchableOpacity
+            key={item}
+            style={styles.subjectItem}
+            onPress={() => {
+              router.push({
+                pathname: "/(tabs)/screens/search_results_screen",
+                params: { keyword: item?.trim() ?? "" }, // ← 여기서 전달!
+              });
+            }}
+          >
             <Ionicons name="add-circle" size={24} color="#007AFF" />
             <Text style={styles.subjectText}>{item}</Text>
           </TouchableOpacity>
@@ -63,9 +95,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   searchInput: {
-    marginLeft: 8,
-    fontSize: 16,
-    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 20,

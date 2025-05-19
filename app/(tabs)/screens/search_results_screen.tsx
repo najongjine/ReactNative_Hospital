@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Dimensions, SafeAreaView, StyleSheet, Text } from "react-native";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Dimensions, Image, SafeAreaView, StyleSheet, Text } from "react-native";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
 import * as Location from "expo-location";
 import CustomModal from "../../../components/CustomModal";
@@ -50,51 +51,97 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 
    */
 
-export default function SearchResultsScreen(search_keyword: string) {
+export default function SearchResultsScreen() {
+  // 다른 화면에서 넘겨준 데이터
+  const localParams = useLocalSearchParams<{ keyword?: string }>();
+  const [keyword, setKeyword] = useState<string | null>(null);
   const [hospitalData, setHospitalData] = useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string>("");
   const [selectedHospital, setSelectedHospital] = useState<kakao_api_type.KakaoPlace | null>(null);
   const [hospitalModalVisible, setHospitalModalVisible] = useState(false); // 병원 상세보기 모달
   const [mapModalVisible, setMapModalVisible] = useState(false); // 지도 보기 모달
 
-  useEffect(() => {
-    const fetchLocationAndData = async () => {
-      try {
-        // 위치 권한 요청
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setLocationErrorMsg("위치 권한이 거부되었습니다.");
-          return;
-        }
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-        // 현재 위치 가져오기
-        const location = await Location.getCurrentPositionAsync({});
-        const { latitude, longitude } = location.coords;
+  const fetchLocationAndData = async () => {
+    try {
+      setIsLoading(true);
+      setLocationErrorMsg(""); // 이전 에러 초기화
 
-        // Kakao API 호출
-        const kakao_api_result = await kakao_api.searchPlacesByKeyword("피부과", longitude.toString(), latitude.toString());
-        console.log("kakao_api_result:",kakao_api_result)
-
-        setHospitalData(kakao_api_result?.data);
-      } catch (error) {
-        console.error("위치 정보 가져오기 실패:", error);
-        setLocationErrorMsg("위치 정보를 가져오는 데 실패했습니다.");
+      // 위치 권한 요청
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setLocationErrorMsg("위치 권한이 거부되었습니다.");
+        return;
       }
-    };
 
-    fetchLocationAndData();
-  }, []);
+      // 현재 위치 가져오기
+      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
+      const { latitude, longitude } = location.coords;
+      console.log("longitude: ", longitude);
+
+      // Kakao API 호출
+      const kakao_api_result = await kakao_api.searchPlacesByKeyword(
+        localParams.keyword,
+        longitude.toString(),
+        latitude.toString(),
+        "20000",
+        "HP8",
+        "distance"
+      );
+      console.log("kakao_api_result:", kakao_api_result);
+
+      setHospitalData(kakao_api_result?.data ?? null);
+    } catch (error: any) {
+      console.error("위치 정보 가져오기 실패:", error);
+      setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${error?.message ?? ""}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (localParams.keyword) {
+        // 새 keyword가 들어왔을 때만 초기화 + 검색
+        setKeyword(localParams.keyword);
+        console.log("keyword: ", localParams.keyword);
+        fetchLocationAndData();
+      }
+      return () => {
+        // 화면 떠날 때 결과 초기화하면 깔끔함
+        setHospitalData(null);
+        setLocationErrorMsg("");
+      };
+    }, [localParams.keyword])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Search Results</Text>
-      <HospitalList
-        data={hospitalData?.documents as kakao_api_type.KakaoPlace[]}
-        onPress={(hospital) => {
-          setSelectedHospital(hospital);
-          setHospitalModalVisible(true);
-        }}
-      />{" "}
+      {/* 🔄 로딩 중일 때 */}
+      {isLoading && (
+        <Image source={require("../../../assets/images/loading1.gif")} style={{ width: 100, height: 100, alignSelf: "center" }} />
+      )}
+      {/* ❌ 에러 발생했을 때 */}
+      {!isLoading && locationErrorMsg !== "" && (
+        <Image source={require("../../../assets/images/error1.jpg")} style={{ width: 200, height: 200, alignSelf: "center" }} />
+      )}
+      {/* ✅ 검색 완료 & 결과 없음 */}
+      {!isLoading && !locationErrorMsg && !hospitalData?.documents?.length && (
+        <Image source={require("../../../assets/images/no_data.jpg")} style={{ width: 200, height: 200, alignSelf: "center" }} />
+      )}
+      {/* ✅ 검색 완료 & 결과 있음 */}
+      {!isLoading && !locationErrorMsg && hospitalData?.documents?.length && (
+        <HospitalList
+          data={hospitalData.documents as kakao_api_type.KakaoPlace[]}
+          onPress={(hospital) => {
+            setSelectedHospital(hospital);
+            setHospitalModalVisible(true);
+          }}
+        />
+      )}{" "}
+      <Text>{locationErrorMsg}</Text>
       {/* 모달창 */}
       <CustomModal visible={hospitalModalVisible} onClose={() => setHospitalModalVisible(false)}>
         {/* 만약 selectedHospital(선택된 병원)이 있다면, <HospitalDetail />(병원 정보창)을 모달 안에 보여줘!

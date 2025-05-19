@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 // 📦 WebView는 HTML 기반 지도를 앱 화면에 띄워주는 도구입니다.
 import * as Location from "expo-location";
+import { useLocalSearchParams } from "expo-router";
 import { WebView } from "react-native-webview";
 
 // 💡 KakaoMap 컴포넌트가 받아야 할 props: 위도와 경도
@@ -9,8 +10,16 @@ type KakaoMapProps = {
   latitude?: number;
   longitude?: number;
 };
+interface location_type {
+  user_long: number;
+  user_lat: number;
+  place_long: number;
+  place_lat: number;
+}
 
 export default function KakaoMap({ latitude, longitude }: KakaoMapProps) {
+  const { locationData } = useLocalSearchParams();
+  const parsedLocationData = JSON.parse((locationData ?? null) as any) as location_type;
   // 🔑 카카오 지도 API를 사용하려면 필요한 키입니다 (보안상 실제 앱에선 .env 파일로 관리해야 안전합니다)
   const KAKAO_MAP_JS_KEY = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
   const REST_API_KEY = process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY;
@@ -55,12 +64,12 @@ export default function KakaoMap({ latitude, longitude }: KakaoMapProps) {
         <script>
         let map=null;
         const currentPosition = {
-          latitude: ${mylatitude},
-          longitude: ${mylongitude}
+          latitude: ${parsedLocationData?.user_lat ?? 0},
+          longitude: ${parsedLocationData?.user_long ?? 0}
         };
         const destination = {
-          latitude: ${latitude},
-          longitude: ${longitude}
+          latitude: ${parsedLocationData?.place_lat ?? 0},
+          longitude: ${parsedLocationData?.place_long ?? 0}
         };
         const REST_API_KEY = '${REST_API_KEY}';
 
@@ -150,14 +159,14 @@ window.drawPolyLine = async function(payload) {
             if (typeof kakao !== 'undefined' && kakao.maps) {
               const mapContainer = document.getElementById('map');
               const mapOption = {
-                center: new kakao.maps.LatLng(${latitude}, ${longitude}),
+                center: new kakao.maps.LatLng(${parsedLocationData?.place_lat ?? 0}, ${parsedLocationData?.place_long ?? 0}),
                 level: 3
               };
               // 🗺️ 카카오 지도 객체를 생성해서 실제로 화면에 지도를 보여주는 부분입니다.
 map = new kakao.maps.Map(mapContainer, mapOption);
 
               // 마커 추가 (선택 사항)
-              const markerPosition = new kakao.maps.LatLng(${latitude}, ${longitude});
+              const markerPosition = new kakao.maps.LatLng(${parsedLocationData?.place_lat ?? 0}, ${parsedLocationData?.place_long ?? 0});
               // 📍 지도 위에 마커(핀)를 꽂는 코드입니다. 중심 좌표와 같은 곳에 표시됩니다.
 const marker = new kakao.maps.Marker({
                 position: markerPosition
@@ -179,7 +188,7 @@ const marker = new kakao.maps.Marker({
   // 📱 이 함수형 컴포넌트는 View 안에 WebView를 렌더링합니다.
   return (
     <View style={styles.container}>
-      <Text>KAKAO_MAP_JS_KEY : {KAKAO_MAP_JS_KEY}</Text>
+      <Text>KAKAO_MAP_JS_KEY : {JSON.stringify(locationData)}</Text>
       <WebView
         ref={webViewRef}
         originWhitelist={["*"]}

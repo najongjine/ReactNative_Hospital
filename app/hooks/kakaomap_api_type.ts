@@ -7,8 +7,10 @@ export interface KakaoPlace {
   category_name: string;
   category_group_code: string;
   category_group_name: string;
-  x: string; // 경도 (longitude)
-  y: string; // 위도 (latitude)
+  /** 경도 (longitude) */
+  x: string;
+  /** 위도 (latitude) */
+  y: string;
   distance?: string; // 선택적 필드: 거리 (미터 단위)
   place_url: string;
 }

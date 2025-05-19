@@ -1,4 +1,4 @@
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Dimensions, Image, SafeAreaView, StyleSheet, Text } from "react-native";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
@@ -12,6 +12,13 @@ import * as kakao_api_type from "../../hooks/kakaomap_api_type";
 import KakaoMapScreen from "../KakaoMapScreen";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
+
+interface location_type {
+  user_long: number;
+  user_lat: number;
+  place_long: number;
+  place_lat: number;
+}
 
 /**
 [ SearchResultsScreen ]
@@ -52,8 +59,15 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
    */
 
 export default function SearchResultsScreen() {
+  const router = useRouter();
   // 다른 화면에서 넘겨준 데이터
   const localParams = useLocalSearchParams<{ keyword?: string }>();
+  const [locationData, setLocationData] = useState<location_type>({
+    user_long: 0,
+    user_lat: 0,
+    place_long: 0,
+    place_lat: 0,
+  });
   const [keyword, setKeyword] = useState<string | null>(null);
   const [hospitalData, setHospitalData] = useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string>("");
@@ -103,6 +117,7 @@ export default function SearchResultsScreen() {
         setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${kakao_api_result?.message ?? ""}`);
         return;
       }
+      setLocationData({ user_lat: latitude, user_long: longitude, place_lat: 0, place_long: 0 });
     } catch (error: any) {
       console.error("위치 정보 가져오기 실패:", error);
       setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${error?.message ?? ""}`);
@@ -169,7 +184,23 @@ export default function SearchResultsScreen() {
             <Button1
               buttonText={"지도보기"}
               onPress={() => {
-                setMapModalVisible(true); // 지도 모달 열기
+                router.push({
+                  pathname: "/(tabs)/KakaoMapScreen",
+                  params: {
+                    locationData: JSON.stringify({
+                      user_lat: locationData?.user_lat ?? 0,
+                      user_long: locationData?.user_long ?? 0,
+                      place_lat: Number(selectedHospital.y),
+                      place_long: Number(selectedHospital.x),
+                    }),
+                  }, // ← 여기서 전달!
+                });
+              }}
+            />{" "}
+            <Button1
+              buttonText={"즐겨찾기기"}
+              onPress={() => {
+                alert("서버연결 필요");
               }}
             />
             <HospitalDetail hospital={selectedHospital} />

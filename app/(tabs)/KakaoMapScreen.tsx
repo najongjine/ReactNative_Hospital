@@ -1,46 +1,37 @@
 // app/(tabs)/KakaoMapScreen.tsx
 import KakaoMap from "@/components/KakaoMap";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
-import * as Location from "expo-location";
-import React, { useEffect, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect } from "react";
 import { StyleSheet, Text } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-interface KakaoMapProps {
-  _latitude: number;
-  _longitude: number;
+interface location_type {
+  user_long: number;
+  user_lat: number;
+  place_long: number;
+  place_lat: number;
 }
-export default function KakaoMapScreen({ _latitude, _longitude }: KakaoMapProps) {
-  // 📌 현재 위치의 경도(longitude)를 저장할 상태 변수입니다.
-  const [longitude, setLongitude] = useState<number>(_longitude);
-  // 📌 현재 위치의 위도(latitude)를 저장할 상태 변수입니다.
-  const [latitude, setLatitude] = useState<number>(_latitude);
-
+export default function KakaoMapScreen() {
+  const { locationData } = useLocalSearchParams();
+  const parsedLocationData = JSON.parse((locationData ?? null) as any) as location_type;
   // ⚙️ 컴포넌트가 처음 렌더링될 때 한 번 실행되는 코드입니다.
-  useEffect(() => {
-    // 📌 비동기로 위치 정보를 가져오는 함수입니다.
-    const getCurrentLocation = async () => {
-      // 현재 위치 가져오기
-      try {
-        const { coords } = await Location.getCurrentPositionAsync({});
-        //setLongitude(coords?.longitude ?? 0);
-        //setLatitude(coords?.latitude ?? 0);
-        setLongitude(126.78269531238217);
-        setLatitude(35.15038945063345);
-      } catch (error) {
-        console.error("위치 정보를 가져오는 데 실패했습니다:", error);
-        setLongitude(126.78269531238217);
-        setLatitude(35.15038945063345);
-      }
-    };
-    getCurrentLocation();
-  }, []);
+  useEffect(() => {}, []);
 
   // 📱 화면에 실제로 보여줄 UI를 정의합니다.
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.text}>카카오맵 웹뷰로 띄우기</Text>
-      {longitude ? <KakaoMap latitude={latitude} longitude={longitude} /> : <Text>위치를 가져오는 중입니다...</Text>}
+      {parsedLocationData.place_long ? (
+        <KakaoMap
+          user_lat={parsedLocationData.user_lat}
+          user_long={parsedLocationData.user_long}
+          place_lat={parsedLocationData.place_lat}
+          place_long={parsedLocationData.place_long}
+        />
+      ) : (
+        <Text>위치를 가져오는 중입니다...</Text>
+      )}
     </ScrollView>
   );
 }

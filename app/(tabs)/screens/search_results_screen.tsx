@@ -9,7 +9,6 @@ import HospitalList from "../../../components/HospitalList";
 import Button1 from "../../../components/buttons/button1";
 import * as kakao_api from "../../hooks/kakaomap_api";
 import * as kakao_api_type from "../../hooks/kakaomap_api_type";
-import KakaoMapScreen from "../KakaoMapScreen";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
@@ -140,6 +139,7 @@ export default function SearchResultsScreen() {
         // 화면 떠날 때 결과 초기화하면 깔끔함
         setHospitalData(null);
         setLocationErrorMsg("");
+        setMapModalVisible(false);
       };
     }, [localParams.keyword])
   );
@@ -206,9 +206,6 @@ export default function SearchResultsScreen() {
             <HospitalDetail hospital={selectedHospital} />
           </>
         )}
-      </CustomModal>
-      <CustomModal visible={mapModalVisible} onClose={() => setMapModalVisible(false)}>
-        {selectedHospital && <KakaoMapScreen _latitude={0} _longitude={0} />}
       </CustomModal>
       {/* 모달창 END */}
     </SafeAreaView>

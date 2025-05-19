@@ -65,9 +65,6 @@ export default function SearchResultsScreen() {
 
   const fetchLocationAndData = async () => {
     try {
-      setIsLoading(true);
-      setLocationErrorMsg(""); // 이전 에러 초기화
-
       // 위치 권한 요청
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -102,7 +99,9 @@ export default function SearchResultsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (localParams.keyword) {
+      if (localParams?.keyword) {
+        setIsLoading(true);
+        setLocationErrorMsg(""); // 이전 에러 초기화
         // 새 keyword가 들어왔을 때만 초기화 + 검색
         setKeyword(localParams.keyword);
         console.log("keyword: ", localParams.keyword);

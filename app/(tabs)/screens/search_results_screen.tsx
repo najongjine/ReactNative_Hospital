@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Dimensions, Image, SafeAreaView, StyleSheet, Text } from "react-native";
+import { Dimensions, Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
 import * as Location from "expo-location";
 import CustomModal from "../../../components/CustomModal";
@@ -181,28 +181,30 @@ export default function SearchResultsScreen() {
         {selectedHospital && (
           <>
             {" "}
-            <Button1
-              buttonText={"지도보기"}
-              onPress={() => {
-                router.push({
-                  pathname: "/(tabs)/KakaoMapScreen",
-                  params: {
-                    locationData: JSON.stringify({
-                      user_lat: locationData?.user_lat ?? 0,
-                      user_long: locationData?.user_long ?? 0,
-                      place_lat: Number(selectedHospital.y),
-                      place_long: Number(selectedHospital.x),
-                    }),
-                  }, // ← 여기서 전달!
-                });
-              }}
-            />{" "}
-            <Button1
-              buttonText={"즐겨찾기기"}
-              onPress={() => {
-                alert("서버연결 필요");
-              }}
-            />
+            <View style={styles.buttonRow}>
+              <Button1
+                buttonText={"지도보기"}
+                onPress={() => {
+                  router.push({
+                    pathname: "/(tabs)/KakaoMapScreen",
+                    params: {
+                      locationData: JSON.stringify({
+                        user_lat: locationData?.user_lat ?? 0,
+                        user_long: locationData?.user_long ?? 0,
+                        place_lat: Number(selectedHospital.y),
+                        place_long: Number(selectedHospital.x),
+                      }),
+                    }, // ← 여기서 전달!
+                  });
+                }}
+              />{" "}
+              <Button1
+                buttonText={"즐겨찾기기"}
+                onPress={() => {
+                  alert("서버연결 필요");
+                }}
+              />
+            </View>
             <HospitalDetail hospital={selectedHospital} />
           </>
         )}
@@ -284,5 +286,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
+  },
+  buttonRow: {
+    flexDirection: "row", // 가로 정렬
+    justifyContent: "center", // 가운데 정렬
+    marginBottom: 15, // 아래 여백
   },
 });

@@ -3,34 +3,7 @@ import { Dimensions, SafeAreaView, StyleSheet, Text } from "react-native";
 import CustomModal from "../../components/CustomModal";
 import HospitalDetail from "../../components/HospitalDetail";
 import HospitalList from "../../components/HospitalList";
-
-type Hospital = {
-  name: string;
-  department: string;
-  address: string;
-  phone: string;
-};
-
-const hospitalData = [
-  {
-    name: "Sunnyvale Hospital",
-    department: "Pediatrics",
-    address: "123 Elm St, Springfield, IL",
-    phone: "(217) 555-0123",
-  },
-  {
-    name: "Greenwood Medical Center",
-    department: "Cardiology",
-    address: "456 Oak St, Lincoln, NE",
-    phone: "(402) 555-0147",
-  },
-  {
-    name: "Riverside Hospital",
-    department: "Orthopedics",
-    address: "789 Pine St, Columbus, OH",
-    phone: "(614) 555-0198",
-  },
-];
+import { KakaoPlace } from "../hooks/kakaomap_api_type";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
@@ -73,14 +46,18 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
    */
 
 export default function MyFavList() {
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+  const [hospitalList, setHospitalList] = useState<KakaoPlace[] | null>(null);
+  const [selectedHospital, setSelectedHospital] = useState<KakaoPlace | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [hospitalListStatus, setHospitalListStatus] = useState<"loading" | "data_exists" | "error">("loading");
+  const [favoriteStatus, setFavoriteStatus] = useState<"loading" | "favorited" | "not_favorited" | "error">("loading");
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>즐겨찾기 리스트</Text>
       <HospitalList
-        data={hospitalData}
+        data={hospitalList ?? []}
         // 함수를 바로 선언함과 동시에 자식한테 쓰라고 넘겨주기
         onPress={(hospital) => {
           setSelectedHospital(hospital);

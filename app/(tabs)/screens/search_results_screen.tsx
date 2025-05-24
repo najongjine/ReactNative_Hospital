@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Dimensions, Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
+import axios from "axios";
 import * as Location from "expo-location";
 import CustomModal from "../../../components/CustomModal";
 import HospitalDetail from "../../../components/HospitalDetail";
@@ -58,6 +59,7 @@ interface location_type {
    */
 
 export default function SearchResultsScreen() {
+  const SERVER_API = process.env.EXPO_PUBLIC_SERVER_URL;
   const router = useRouter();
   // 다른 화면에서 넘겨준 데이터
   const localParams = useLocalSearchParams<{ keyword?: string }>();
@@ -75,6 +77,8 @@ export default function SearchResultsScreen() {
   const [mapModalVisible, setMapModalVisible] = useState(false); // 지도 보기 모달
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [favoriteStatus, setFavoriteStatus] = useState<"loading" | "favorited" | "not_favorited" | "error">("loading");
 
   const fetchLocationAndData = async () => {
     try {
@@ -125,6 +129,63 @@ export default function SearchResultsScreen() {
     }
   };
 
+  const fetchFavoriteStatus = async (hospital_id: string) => {
+    if (!hospital_id) return;
+
+    setFavoriteStatus("loading");
+    try {
+      const response = await axios.get(`${SERVER_API}/fav_hospital/get_hospital_by_kakao_placeid`, {
+        params: { id: hospital_id },
+      });
+
+      if (!response?.data?.success) {
+        alert(`서버 응답 실패: ${response?.data?.message ?? ""}`);
+        setFavoriteStatus("error");
+        return;
+      }
+
+      const isFavorited = !!response.data.data;
+      setFavoriteStatus(isFavorited ? "favorited" : "not_favorited");
+    } catch (error: any) {
+      alert("서버 에러: " + error?.message);
+      setFavoriteStatus("error");
+    }
+  };
+
+  const upsertFavHospital = async (hospital: kakao_api_type.KakaoPlace) => {
+    if (!hospital) return;
+
+    try {
+      const response = await axios.post(`${SERVER_API}/fav_hospital/upsert_hospital`, { hospital });
+
+      if (!response?.data?.success) {
+        alert(`서버 응답 실패: ${response?.data?.message ?? ""}`);
+        return;
+      }
+
+      setFavoriteStatus("favorited");
+    } catch (error: any) {
+      alert("서버 에러: " + error?.message);
+    }
+  };
+
+  const deleteFavHospital = async (hospital_id: string) => {
+    if (!hospital_id?.trim()) return;
+
+    try {
+      const response = await axios.post(`${SERVER_API}/fav_hospital/delete_hospital`, { id: hospital_id.trim() });
+
+      if (!response?.data?.success) {
+        alert(`서버 응답 실패: ${response?.data?.message ?? ""}`);
+        return;
+      }
+
+      setFavoriteStatus("not_favorited");
+    } catch (error: any) {
+      alert("서버 에러: " + error?.message);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       if (localParams?.keyword) {
@@ -134,12 +195,14 @@ export default function SearchResultsScreen() {
         setKeyword(localParams.keyword);
         console.log("keyword: ", localParams.keyword);
         fetchLocationAndData();
+        setFavoriteStatus("loading");
       }
       return () => {
         // 화면 떠날 때 결과 초기화하면 깔끔함
         setHospitalData(null);
         setLocationErrorMsg("");
         setMapModalVisible(false);
+        setSelectedHospital(null);
       };
     }, [localParams.keyword])
   );
@@ -166,6 +229,7 @@ export default function SearchResultsScreen() {
           onPress={(hospital) => {
             setSelectedHospital(hospital);
             setHospitalModalVisible(true);
+            fetchFavoriteStatus(hospital?.id ?? "");
           }}
         />
       )}{" "}
@@ -198,12 +262,25 @@ export default function SearchResultsScreen() {
                   });
                 }}
               />{" "}
-              <Button1
-                buttonText={"즐겨찾기기"}
-                onPress={() => {
-                  alert("서버연결 필요");
-                }}
-              />
+              {favoriteStatus === "loading" ? null : null}
+              {favoriteStatus == "not_favorited" ? (
+                <Button1
+                  buttonText={"즐겨찾기"}
+                  onPress={() => {
+                    upsertFavHospital(selectedHospital);
+                  }}
+                />
+              ) : null}
+              {favoriteStatus == "favorited" ? (
+                <Button1
+                  buttonText={"즐겨찾기 취소"}
+                  color="gray"
+                  onPress={() => {
+                    deleteFavHospital(selectedHospital?.id ?? "");
+                  }}
+                />
+              ) : null}
+              {favoriteStatus === "error" ? <Text>서버에러...</Text> : null}
             </View>
             <HospitalDetail hospital={selectedHospital} />
           </>

@@ -37,7 +37,7 @@ export default function KakaoMap({ user_lat, user_long, place_lat, place_long }:
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_JS_KEY}&libraries=services"></script>
+        <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=150e98e3bd883753e02d811c6dfa864c&libraries=services"></script>
         <style>
           body { margin: 0; padding: 0; height: 100%; }
           html { height: 100%; }
@@ -56,7 +56,7 @@ export default function KakaoMap({ user_lat, user_long, place_lat, place_long }:
           latitude: ${place_lat},
           longitude: ${place_long}
         };
-        const REST_API_KEY = '${REST_API_KEY}';
+        const REST_API_KEY = '59498ffaa12716e02333174a9e4bac54';
 
 document.addEventListener("message", function(event) {
   const msg = JSON.parse(event.data);
@@ -181,6 +181,7 @@ const marker = new kakao.maps.Marker({
         style={styles.webview}
         javaScriptEnabled={true}
         domStorageEnabled={true}
+        mixedContentMode="always"
         onLoad={() => {
           console.log("WebView loaded");
           webViewRef.current?.injectJavaScript("");

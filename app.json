@@ -24,6 +24,11 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCfG57i8aSRl3KdgulE0Y98zUUKuvHo_LU"
+        }
+      },
       "edgeToEdgeEnabled": true,
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "INTERNET"],
       "package": "com.najongjine.ReactNative_Hospital"

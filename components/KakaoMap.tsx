@@ -1,8 +1,6 @@
-// GoogleMap.tsx
-
-import React, { useEffect, useRef } from "react";
-import { StyleSheet, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import React from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import MapView, { Marker, Polyline } from "react-native-maps";
 
 interface location_type {
   user_long: number;
@@ -12,37 +10,43 @@ interface location_type {
 }
 
 export default function KakaoMap({ user_lat, user_long, place_lat, place_long }: location_type) {
-  const mapRef = useRef<MapView>(null);
+  if (Platform.OS === "web") {
+    // 📱 웹에서는 구글맵이 지원되지 않으므로 간단한 메시지를 출력
+    return (
+      <View style={styles.webFallback}>
+        <Text>웹에서는 지도를 지원하지 않습니다. 모바일에서 확인해주세요.</Text>
+      </View>
+    );
+  }
 
-  // 도착지로 카메라 이동
-  useEffect(() => {
-    const region = {
-      latitude: place_lat,
-      longitude: place_long,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
-
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(region, 1000); // 1초 동안 부드럽게 이동
-    }
-  }, [place_lat, place_long]); // place_lat/long 변경 시마다 실행
+  const region = {
+    latitude: (user_lat + place_lat) / 2,
+    longitude: (user_long + place_long) / 2,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  };
 
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={{
-          latitude: place_lat,
-          longitude: place_long,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        {/* 도착지 마커 */}
-        <Marker coordinate={{ latitude: place_lat, longitude: place_long }} title="도착지" />
+      <MapView style={styles.map} initialRegion={region}>
+        <Marker
+          coordinate={{ latitude: user_lat, longitude: user_long }}
+          title="출발지"
+          description="당신의 현재 위치"
+        />
+        <Marker
+          coordinate={{ latitude: place_lat, longitude: place_long }}
+          title="도착지"
+          description="선택한 병원 위치"
+        />
+        <Polyline
+          coordinates={[
+            { latitude: user_lat, longitude: user_long },
+            { latitude: place_lat, longitude: place_long },
+          ]}
+          strokeColor="blue"
+          strokeWidth={3}
+        />
       </MapView>
     </View>
   );
@@ -58,5 +62,14 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  webFallback: {
+    width: 300,
+    height: 300,
+    marginTop: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
 });

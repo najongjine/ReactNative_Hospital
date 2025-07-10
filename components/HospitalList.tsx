@@ -1,6 +1,13 @@
 // components/HospitalList.tsx
 import React from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  Button,
+  FlatList,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import * as kakao_api_type from "../app/hooks/kakaomap_api_type";
 
 interface HospitalListProps {
@@ -35,6 +42,12 @@ onPress={() => onPress(item)} :
 👉 부모가 전달한 함수를 실행만 하는 거예요!
  */
 export default function HospitalList({ data, onPress }: HospitalListProps) {
+  const testFunc = (item: kakao_api_type.KakaoPlace) => {
+    const url = `https://map.kakao.com/link/map/${encodeURIComponent(
+      item?.place_name ?? ""
+    )},${item?.y},${item?.x}`;
+    Linking.openURL(url);
+  };
   return (
     <FlatList
       data={data}
@@ -45,12 +58,15 @@ export default function HospitalList({ data, onPress }: HospitalListProps) {
             버튼을 누르면 이 익명 함수가 실행되고, 그 안에서 onPress(item)이 실행됨
             즉, item이라는 값을 넘기고 싶을 때 사용하는 패턴
          */
-        <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
-          <Text style={styles.name}>{item?.place_name ?? ""}</Text>
-          <Text style={styles.department}>{item?.category_name ?? ""}</Text>
-          <Text style={styles.info}>{item?.address_name ?? ""}</Text>
-          <Text style={styles.info}>{item?.phone ?? ""}</Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
+            <Text style={styles.name}>{item?.place_name ?? ""}</Text>
+            <Text style={styles.department}>{item?.category_name ?? ""}</Text>
+            <Text style={styles.info}>{item?.address_name ?? ""}</Text>
+            <Text style={styles.info}>{item?.phone ?? ""}</Text>
+          </TouchableOpacity>
+          <Button title="카카오맵으로 열기" onPress={() => testFunc(item)} />
+        </>
       )}
     />
   );

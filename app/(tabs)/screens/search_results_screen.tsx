@@ -1,6 +1,13 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Dimensions, Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 // 📍 expo-location은 현재 위치를 가져오기 위한 라이브러리입니다.
 import axios from "axios";
 import * as Location from "expo-location";
@@ -70,15 +77,19 @@ export default function SearchResultsScreen() {
     place_lat: 0,
   });
   const [keyword, setKeyword] = useState<string | null>(null);
-  const [hospitalData, setHospitalData] = useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
+  const [hospitalData, setHospitalData] =
+    useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string>("");
-  const [selectedHospital, setSelectedHospital] = useState<kakao_api_type.KakaoPlace | null>(null);
+  const [selectedHospital, setSelectedHospital] =
+    useState<kakao_api_type.KakaoPlace | null>(null);
   const [hospitalModalVisible, setHospitalModalVisible] = useState(false); // 병원 상세보기 모달
   const [mapModalVisible, setMapModalVisible] = useState(false); // 지도 보기 모달
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [favoriteStatus, setFavoriteStatus] = useState<"loading" | "favorited" | "not_favorited" | "error">("loading");
+  const [favoriteStatus, setFavoriteStatus] = useState<
+    "loading" | "favorited" | "not_favorited" | "error"
+  >("loading");
 
   const fetchLocationAndData = async () => {
     try {
@@ -117,13 +128,24 @@ export default function SearchResultsScreen() {
 
       setHospitalData(kakao_api_result?.data ?? null);
       if (!kakao_api_result.success) {
-        setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${kakao_api_result?.message ?? ""}`);
+        setLocationErrorMsg(
+          `위치 정보를 가져오는 데 실패했습니다. ${
+            kakao_api_result?.message ?? ""
+          }`
+        );
         return;
       }
-      setLocationData({ user_lat: latitude, user_long: longitude, place_lat: 0, place_long: 0 });
+      setLocationData({
+        user_lat: latitude,
+        user_long: longitude,
+        place_lat: 0,
+        place_long: 0,
+      });
     } catch (error: any) {
       console.error("위치 정보 가져오기 실패:", error);
-      setLocationErrorMsg(`위치 정보를 가져오는 데 실패했습니다. ${error?.message ?? ""}`);
+      setLocationErrorMsg(
+        `위치 정보를 가져오는 데 실패했습니다. ${error?.message ?? ""}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -134,9 +156,12 @@ export default function SearchResultsScreen() {
 
     setFavoriteStatus("loading");
     try {
-      const response = await axios.get(`${SERVER_API}/fav_hospital/get_hospital_by_kakao_placeid`, {
-        params: { id: hospital_id },
-      });
+      const response = await axios.get(
+        `${SERVER_API}/fav_hospital/get_hospital_by_kakao_placeid`,
+        {
+          params: { id: hospital_id },
+        }
+      );
 
       if (!response?.data?.success) {
         alert(`서버 응답 실패: ${response?.data?.message ?? ""}`);
@@ -156,7 +181,10 @@ export default function SearchResultsScreen() {
     if (!hospital) return;
 
     try {
-      const response = await axios.post(`${SERVER_API}/fav_hospital/upsert_hospital`, { hospital });
+      const response = await axios.post(
+        `${SERVER_API}/fav_hospital/upsert_hospital`,
+        { hospital }
+      );
 
       if (!response?.data?.success) {
         alert(`서버 응답 실패: ${response?.data?.message ?? ""}`);
@@ -173,7 +201,10 @@ export default function SearchResultsScreen() {
     if (!hospital_id?.trim()) return;
 
     try {
-      const response = await axios.post(`${SERVER_API}/fav_hospital/delete_hospital`, { id: hospital_id.trim() });
+      const response = await axios.post(
+        `${SERVER_API}/fav_hospital/delete_hospital`,
+        { id: hospital_id.trim() }
+      );
 
       if (!response?.data?.success) {
         alert(`서버 응답 실패: ${response?.data?.message ?? ""}`);
@@ -212,30 +243,44 @@ export default function SearchResultsScreen() {
       <Text style={styles.header}>Search Results</Text>
       {/* 🔄 로딩 중일 때 */}
       {isLoading && (
-        <Image source={require("../../../assets/images/loading1.gif")} style={{ width: 100, height: 100, alignSelf: "center" }} />
+        <Image
+          source={require("../../../assets/images/loading1.gif")}
+          style={{ width: 100, height: 100, alignSelf: "center" }}
+        />
       )}
       {/* ❌ 에러 발생했을 때 */}
       {!isLoading && locationErrorMsg !== "" && (
-        <Image source={require("../../../assets/images/error1.jpg")} style={{ width: 200, height: 200, alignSelf: "center" }} />
+        <Image
+          source={require("../../../assets/images/error1.jpg")}
+          style={{ width: 200, height: 200, alignSelf: "center" }}
+        />
       )}
       {/* ✅ 검색 완료 & 결과 없음 */}
       {!isLoading && !locationErrorMsg && !hospitalData?.documents?.length && (
-        <Image source={require("../../../assets/images/no_data.jpg")} style={{ width: 200, height: 200, alignSelf: "center" }} />
+        <Image
+          source={require("../../../assets/images/no_data.jpg")}
+          style={{ width: 200, height: 200, alignSelf: "center" }}
+        />
       )}
       {/* ✅ 검색 완료 & 결과 있음 */}
       {!isLoading && !locationErrorMsg && hospitalData?.documents?.length && (
-        <HospitalList
-          data={hospitalData.documents as kakao_api_type.KakaoPlace[]}
-          onPress={(hospital) => {
-            setSelectedHospital(hospital);
-            setHospitalModalVisible(true);
-            fetchFavoriteStatus(hospital?.id ?? "");
-          }}
-        />
+        <>
+          <HospitalList
+            data={hospitalData.documents as kakao_api_type.KakaoPlace[]}
+            onPress={(hospital) => {
+              setSelectedHospital(hospital);
+              setHospitalModalVisible(true);
+              fetchFavoriteStatus(hospital?.id ?? "");
+            }}
+          />
+        </>
       )}{" "}
       <Text>{locationErrorMsg}</Text>
       {/* 모달창 */}
-      <CustomModal visible={hospitalModalVisible} onClose={() => setHospitalModalVisible(false)}>
+      <CustomModal
+        visible={hospitalModalVisible}
+        onClose={() => setHospitalModalVisible(false)}
+      >
         {/* 만약 selectedHospital(선택된 병원)이 있다면, <HospitalDetail />(병원 정보창)을 모달 안에 보여줘!
         | selectedHospital 값    | 결과                         |
         | --------------------- | -------------------------- |

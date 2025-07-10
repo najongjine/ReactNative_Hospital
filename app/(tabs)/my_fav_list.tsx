@@ -25,7 +25,7 @@ interface location_type {
   place_lat: number;
 }
 
-export default function SearchResultsScreen() {
+export default function MyFavList() {
   const SERVER_API = process.env.EXPO_PUBLIC_SERVER_URL;
   const router = useRouter();
   // 다른 화면에서 넘겨준 데이터
@@ -57,6 +57,7 @@ export default function SearchResultsScreen() {
         `http://localhost:3005/api/fav_hospital/get_fav_hospital_list`
       );
       _data = _data?.data;
+      console.log("## _data:", _data?.data);
       if (!_data?.success) {
         console.error("즐겨찾기 가져오기 실패:", _data?.message ?? "");
         setLocationErrorMsg(
@@ -142,15 +143,11 @@ export default function SearchResultsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (localParams?.keyword) {
-        setIsLoading(true);
-        setLocationErrorMsg(""); // 이전 에러 초기화
-        // 새 keyword가 들어왔을 때만 초기화 + 검색
-        setKeyword(localParams.keyword);
-        console.log("keyword: ", localParams.keyword);
-        fetchLocationAndData();
-        setFavoriteStatus("loading");
-      }
+      setIsLoading(true);
+      setLocationErrorMsg(""); // 이전 에러 초기화
+      // 새 keyword가 들어왔을 때만 초기화 + 검색
+      fetchLocationAndData();
+      setFavoriteStatus("loading");
       return () => {
         // 화면 떠날 때 결과 초기화하면 깔끔함
         setHospitalData(null);

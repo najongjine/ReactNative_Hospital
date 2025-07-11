@@ -37,8 +37,9 @@ export default function MyFavList() {
     place_lat: 0,
   });
   const [keyword, setKeyword] = useState<string | null>(null);
-  const [hospitalData, setHospitalData] =
-    useState<kakao_api_type.KakaoKeywordSearchResponse | null>(null);
+  const [hospitalData, setHospitalData] = useState<
+    kakao_api_type.KakaoPlace[] | null
+  >([]);
   const [locationErrorMsg, setLocationErrorMsg] = useState<string>("");
   const [selectedHospital, setSelectedHospital] =
     useState<kakao_api_type.KakaoPlace | null>(null);
@@ -116,6 +117,7 @@ export default function MyFavList() {
       }
 
       setFavoriteStatus("favorited");
+      fetchLocationAndData();
     } catch (error: any) {
       alert("서버 에러: " + error?.message);
     }
@@ -136,6 +138,7 @@ export default function MyFavList() {
       }
 
       setFavoriteStatus("not_favorited");
+      fetchLocationAndData();
     } catch (error: any) {
       alert("서버 에러: " + error?.message);
     }
@@ -176,17 +179,17 @@ export default function MyFavList() {
         />
       )}
       {/* ✅ 검색 완료 & 결과 없음 */}
-      {!isLoading && !locationErrorMsg && !hospitalData?.documents?.length && (
+      {!isLoading && !locationErrorMsg && !hospitalData?.length && (
         <Image
           source={require("../../assets/images/no_data.jpg")}
           style={{ width: 200, height: 200, alignSelf: "center" }}
         />
       )}
       {/* ✅ 검색 완료 & 결과 있음 */}
-      {!isLoading && !locationErrorMsg && hospitalData?.documents?.length && (
+      {!isLoading && !locationErrorMsg && hospitalData?.length && (
         <>
           <HospitalList
-            data={hospitalData.documents as kakao_api_type.KakaoPlace[]}
+            data={hospitalData}
             onPress={(hospital) => {
               setSelectedHospital(hospital);
               setHospitalModalVisible(true);
